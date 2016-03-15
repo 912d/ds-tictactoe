@@ -1,0 +1,10 @@
+### Java template
+*.class
+*.jar
+*.war
+*.ear
+
+target/
+
+*.iml
+.idea/
