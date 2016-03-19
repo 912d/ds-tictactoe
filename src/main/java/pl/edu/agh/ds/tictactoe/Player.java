@@ -4,24 +4,21 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Scanner;
 
 public class Player extends UnicastRemoteObject implements IPlayer, IGameListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(Player.class);
 
     private final String nick;
-    private BufferedReader in;
-    private Writer out;
+    private Scanner in;
 
-
-    public Player(String nick, Reader in, Writer out) throws RemoteException {
+    public Player(String nick) throws RemoteException {
         super();
         this.nick = nick;
-        this.in = new BufferedReader(in);
-        this.out = new BufferedWriter(out);
+        this.in = new Scanner(System.in);
     }
 
     @Override
@@ -31,55 +28,63 @@ public class Player extends UnicastRemoteObject implements IPlayer, IGameListene
 
     // IGameListener methods
     @Override
-    public synchronized Pair<Integer, Integer> onTakeTurn(Board board) throws IOException {
-        board.printBoard(out);
-        out.write("Your turn!");
-        try {
-            int x = -1;
-            int y = -1;
-            boolean moveOk = false;
-            while (!moveOk) {
-                String[] move = in.readLine().split(" ");
-                if (move.length >= 2) {
-                    x = Integer.parseInt(move[0]);
-                    y = Integer.parseInt(move[1]);
-                    moveOk = board.moveAllowed(x, y);
-                    out.write("This move is not allowed.");
-                    out.write(String.format("Please specify correct coordinates between %d and %d", 1, Board.BOARD_SIZE));
-                } else {
-                    out.write(String.format("Please specify two integer numbers between %d and %d", 1, Board.BOARD_SIZE));
-                    out.write("separated with a whitespace.");
-                    moveOk = false;
+    public synchronized Pair<Integer, Integer> onTakeTurn(Board board) throws RemoteException {
+        System.out.println(board.printBoard());
+        System.out.println("Your turn!");
+        int x = -1;
+        int y = -1;
+        boolean moveOk = false;
+        while (!moveOk) {
+            String[] move = in.nextLine().split(" ");
+            if (move.length >= 2) {
+                x = Integer.parseInt(move[0]);
+                y = Integer.parseInt(move[1]);
+                moveOk = board.moveAllowed(x, y);
+                if (!moveOk) {
+                    System.out.println("This move is not allowed.");
+                    System.out.println(String.format("Please specify correct coordinates between %d and %d", 1, Board.BOARD_SIZE));
                 }
+            } else {
+                System.out.println(String.format("Please specify two integer numbers between %d and %d", 1, Board.BOARD_SIZE));
+                System.out.println("separated with a whitespace.");
+                moveOk = false;
             }
-            return new Pair<>(x, y);
-        } catch (IOException e) {
-            LOGGER.error("General IO error: ", e);
         }
-        return null;
+        return new Pair<>(x, y);
     }
 
     @Override
-    public void onWonGame() throws IOException {
-        out.write("CONGRATS!!! YOU WON!!!");
+    public void onWonGame() throws RemoteException {
+        System.out.println("CONGRATS!!! YOU WON!!!");
         exitGame();
     }
 
     @Override
-    public void onLostGame() throws IOException {
-        out.write("Sorry, you lost!");
+    public void onLostGame() throws RemoteException {
+        System.out.println("Sorry, you lost!");
         exitGame();
     }
 
     @Override
-    public void onDrawGame() throws IOException {
-        out.write("It's a draw!");
+    public void onDrawGame() throws RemoteException {
+        System.out.println("It's a draw!");
         exitGame();
     }
 
     @Override
-    public void onWaitForOpponent() throws IOException {
-        out.write("Waiting for opponent...");
+    public void onWaitForOpponent() throws RemoteException {
+        System.out.println("Waiting for opponent...");
+    }
+
+    @Override
+    public void onPrintBoard(Board board) {
+        System.out.println(board.printBoard());
+    }
+
+    @Override
+    public void onPlayerRejected(String message) {
+        System.out.println(String.format("Player rejected: %s", message));
+        exitGame();
     }
 
     private void exitGame() {

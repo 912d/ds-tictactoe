@@ -20,17 +20,19 @@ public class Board implements Serializable {
         }
     }
 
-    public void printBoard(Writer out) throws IOException {
+    public String printBoard() {
+        StringBuilder builder = new StringBuilder();
         for (BoardSquare[] boardLine : board) {
             for (BoardSquare square : boardLine) {
                 if (square == BoardSquare.EMPTY) {
-                    out.write('_');
+                    builder.append('_');
                 } else {
-                    out.write(square.name().toCharArray());
+                    builder.append(square.name().toCharArray());
                 }
             }
-            out.write('\n');
+            builder.append('\n');
         }
+        return builder.toString();
     }
 
     public boolean isFinished() {
@@ -56,7 +58,7 @@ public class Board implements Serializable {
     }
 
     private boolean coordinatesInBounds(int x, int y) {
-        return x < 1 || y < 1 || x > BOARD_SIZE || y > BOARD_SIZE;
+        return x >= 0 && y >= 0 && x < BOARD_SIZE & y < BOARD_SIZE;
     }
 
     private boolean squareEmpty(BoardSquare boardSquare) {
@@ -67,6 +69,8 @@ public class Board implements Serializable {
         if (!moveAllowed(x, y)) {
             throw new IllegalArgumentException(String.format("Illegal move (%d, %d).", x, y));
         }
+        x--;
+        y--;
         board[y][x] = boardSquareType;
         return checkIfMoveWinning(x, y);
     }

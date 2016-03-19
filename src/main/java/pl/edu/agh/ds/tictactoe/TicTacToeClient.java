@@ -5,8 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -51,13 +49,11 @@ public class TicTacToeClient {
 
             Scanner scanner = new Scanner(System.in);
             System.out.print("Type your nickname: ");
-            InputStreamReader in = new InputStreamReader(System.in);
-            OutputStreamWriter out = new OutputStreamWriter(System.out);
-            Player player =
-                    new Player(scanner.nextLine(), in, out);
+            Player player = new Player(scanner.nextLine());
 
             // I want to play with player
             game.startGameWithPlayer(player.getNick(), player);
+
 
             while (true) {
                 sleep(1);
@@ -67,8 +63,6 @@ public class TicTacToeClient {
             LOGGER.error("Error: ", e);
         } catch (InterruptedException e) {
             LOGGER.error("Thread was interrupted.", e);
-        } catch (IOException e) {
-            LOGGER.error("IO Error: ", e);
         }
     }
 }

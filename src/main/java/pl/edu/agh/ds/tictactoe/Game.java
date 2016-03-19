@@ -4,7 +4,7 @@ import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,26 +15,36 @@ public class Game implements IGame {
     private Map<String, IGameListener> players = new HashMap<>();
 
     @Override
-    public void startGameWithPlayer(String player, IGameListener listener) throws IOException {
+    public void startGameWithPlayer(String player, IGameListener listener) throws RemoteException {
         registerPlayer(player, listener);
 
+        if (player.equals(waitingPlayer)) {
+            LOGGER.info(String.format("Player already registered and waiting: %s", player));
+            listener.onPlayerRejected("Player exists.");
+        }
         if (waitingPlayer != null) {
             Board board = new Board();
-            startGame(board, player, waitingPlayer);
             LOGGER.info("Starting game for: " + player + " and " + waitingPlayer);
+            startGame(board, waitingPlayer, player);
         } else {
             this.waitingPlayer = player;
-            listener.onWaitForOpponent();
             LOGGER.info("Player waiting: " + player);
+            listener.onWaitForOpponent();
         }
     }
 
-    private void startGame(Board board, String player1, String player2) throws IOException {
+    private void startGame(Board board, String player1, String player2) throws RemoteException {
 
         while (!board.isFinished()) {
-            getAndApplyPlayersMove(board, player1, BoardSquare.O);
+            Pair<Integer, Integer> move;
+
+            move = getPlayersMove(board, player1);
+            board.applyMove(move.getKey(), move.getValue(), BoardSquare.O);
+            players.get(player1).onPrintBoard(board);
             if (!board.isFinished()) {
-                getAndApplyPlayersMove(board, player2, BoardSquare.X);
+                move = getPlayersMove(board, player2);
+                board.applyMove(move.getKey(), move.getValue(), BoardSquare.X);
+                players.get(player2).onPrintBoard(board);
             }
         }
         BoardSquare winner = board.getWinner();
@@ -55,10 +65,10 @@ public class Game implements IGame {
         unregister(player2);
     }
 
-    private void getAndApplyPlayersMove(Board board, String player, BoardSquare boardSquare) throws IOException {
+    private Pair<Integer, Integer> getPlayersMove(Board board, String player) throws RemoteException {
         Pair<Integer, Integer> move = players.get(player).onTakeTurn(board);
         LOGGER.info("Player {} move: {} {}", player, move.getKey(), move.getValue());
-        board.applyMove(move.getKey(), move.getValue(), boardSquare);
+        return move;
     }
 
     private void unregister(String player) {

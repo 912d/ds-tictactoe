@@ -8,13 +8,17 @@ import java.rmi.RemoteException;
 
 public interface IGameListener extends Remote {
 
-    Pair<Integer, Integer> onTakeTurn(Board board) throws IOException;
+    Pair<Integer, Integer> onTakeTurn(Board board) throws RemoteException;
 
-    void onWonGame() throws IOException;
+    void onWonGame() throws RemoteException;
 
-    void onLostGame() throws RemoteException, IOException;
+    void onLostGame() throws RemoteException;
 
-    void onDrawGame() throws IOException;
+    void onDrawGame() throws RemoteException;
 
-    void onWaitForOpponent() throws IOException;
+    void onWaitForOpponent() throws RemoteException;
+
+    void onPrintBoard(Board board);
+
+    void onPlayerRejected(String message);
 }
