@@ -11,6 +11,9 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.Thread.sleep;
 
@@ -18,6 +21,9 @@ public class TicTacToeClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TicTacToeClient.class);
 
     private static final String PROPERTIES_FILEPATH = "src/main/resources/server.properties";
+
+    private static final Lock lock = new ReentrantLock();
+    public static final Condition notFinished = lock.newCondition();
 
     public static void main(String[] args) {
         String propertiesFilepath;
@@ -52,17 +58,21 @@ public class TicTacToeClient {
             Player player = new Player(scanner.nextLine());
 
             // I want to play with player
-            game.startGameWithPlayer(player.getNick(), player);
+                boolean playWithAI = false;
+                System.out.println("Play with: " + (playWithAI ? "AI" : "player"));
 
+                if (!playWithAI) {
+                    game.startGameWithPlayer(player.getNick(), player);
+                }
 
             while (true) {
-                sleep(1);
+                sleep(5);
             }
 
         } catch (RemoteException | NotBoundException | MalformedURLException e) {
             LOGGER.error("Error: ", e);
         } catch (InterruptedException e) {
-            LOGGER.error("Thread was interrupted.", e);
+            LOGGER.error("Thread interrupted.", e);
         }
     }
 }

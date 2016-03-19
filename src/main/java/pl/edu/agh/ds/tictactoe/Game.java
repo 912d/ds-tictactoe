@@ -15,21 +15,24 @@ public class Game implements IGame {
     private Map<String, IGameListener> players = new HashMap<>();
 
     @Override
-    public void startGameWithPlayer(String player, IGameListener listener) throws RemoteException {
+    public boolean startGameWithPlayer(String player, IGameListener listener) throws RemoteException {
         registerPlayer(player, listener);
 
         if (player.equals(waitingPlayer)) {
             LOGGER.info(String.format("Player already registered and waiting: %s", player));
             listener.onPlayerRejected("Player exists.");
+            return true;
         }
         if (waitingPlayer != null) {
             Board board = new Board();
             LOGGER.info("Starting game for: " + player + " and " + waitingPlayer);
             startGame(board, waitingPlayer, player);
+            return true;
         } else {
             this.waitingPlayer = player;
             LOGGER.info("Player waiting: " + player);
             listener.onWaitForOpponent();
+            return false;
         }
     }
 
@@ -61,6 +64,10 @@ public class Game implements IGame {
             players.get(player1).onDrawGame();
             LOGGER.info("Game finished: draw.");
         }
+
+        players.get(player1).onExitPlayer();
+        players.get(player2).onExitPlayer();
+
         unregister(player1);
         unregister(player2);
     }
