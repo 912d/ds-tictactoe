@@ -47,14 +47,17 @@ class GameRunner implements Runnable {
         }
         BoardSquare winner = board.getWinner();
         if (winner == BoardSquare.O) {
+            listener2.onPrintBoard(board);
             listener1.onWonGame();
             listener2.onLostGame();
             LOGGER.info("GameServer finished: {} won.", player1);
         } else if (winner == BoardSquare.X) {
+            listener1.onPrintBoard(board);
             listener2.onWonGame();
             listener1.onLostGame();
             LOGGER.info("GameServer finished: {} won.", player2);
         } else {
+            listener2.onPrintBoard(board);
             listener2.onDrawGame();
             listener1.onDrawGame();
             LOGGER.info("GameServer finished: draw.");

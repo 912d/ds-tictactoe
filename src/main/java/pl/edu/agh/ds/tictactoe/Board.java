@@ -55,7 +55,7 @@ public class Board implements Serializable {
     }
 
     /**
-     * Coordinates {@code x}, {@code y} in human-friendly format ({@code 1 .. {@link Board#BOARD_SIZE}}).
+     * Coordinates {@code x}, {@code y} in human-friendly format ({@code 1 ..} {@link Board#BOARD_SIZE}).
      */
     public boolean applyMove(int x, int y, BoardSquare boardSquareType) {
         if (!moveAllowed(x, y)) {
@@ -68,14 +68,14 @@ public class Board implements Serializable {
     }
 
     /**
-     * Coordinates {@code x}, {@code y} in human-friendly format ({@code 1 .. {@link Board#BOARD_SIZE}}).
+     * Coordinates {@code x}, {@code y} in human-friendly format ({@code 1 ..} {@link Board#BOARD_SIZE}).
      */
     public boolean moveAllowed(int x, int y) {
         return indicesInBounds(x - 1, y - 1) && squareEmpty(board[y - 1][x - 1]);
     }
 
     /**
-     * Indices {@code x}, {@code y} in array index format ({@code 0 .. {@link Board#BOARD_SIZE} - 1}).
+     * Indices {@code x}, {@code y} in array index format ({@code 0 ..} {@link Board#BOARD_SIZE} {@code - 1}).
      */
     private boolean indicesInBounds(int x, int y) {
         return x >= 0 && y >= 0 && x < BOARD_SIZE & y < BOARD_SIZE;
@@ -86,7 +86,7 @@ public class Board implements Serializable {
     }
 
     /**
-     * Indices {@code x}, {@code y} in array index format ({@code 0 .. {@link Board#BOARD_SIZE} - 1}).
+     * Indices {@code x}, {@code y} in array index format ({@code 0 ..} {@link Board#BOARD_SIZE} {@code - 1}).
      */
     private boolean checkIfMoveWinning(int x, int y) {
         BoardSquare lastMove = board[y][x];
