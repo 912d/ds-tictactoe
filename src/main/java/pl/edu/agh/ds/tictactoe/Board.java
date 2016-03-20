@@ -2,6 +2,7 @@ package pl.edu.agh.ds.tictactoe;
 
 
 import java.io.*;
+import java.util.Arrays;
 
 public class Board implements Serializable {
 
@@ -53,18 +54,9 @@ public class Board implements Serializable {
         return winner;
     }
 
-    public boolean moveAllowed(int x, int y) {
-        return coordinatesInBounds(x - 1, y - 1) && squareEmpty(board[y - 1][x - 1]);
-    }
-
-    private boolean coordinatesInBounds(int x, int y) {
-        return x >= 0 && y >= 0 && x < BOARD_SIZE & y < BOARD_SIZE;
-    }
-
-    private boolean squareEmpty(BoardSquare boardSquare) {
-        return boardSquare == BoardSquare.EMPTY;
-    }
-
+    /**
+     * Coordinates {@code x}, {@code y} in human-friendly format ({@code 1 .. {@link Board#BOARD_SIZE}}).
+     */
     public boolean applyMove(int x, int y, BoardSquare boardSquareType) {
         if (!moveAllowed(x, y)) {
             throw new IllegalArgumentException(String.format("Illegal move (%d, %d).", x, y));
@@ -75,6 +67,27 @@ public class Board implements Serializable {
         return checkIfMoveWinning(x, y);
     }
 
+    /**
+     * Coordinates {@code x}, {@code y} in human-friendly format ({@code 1 .. {@link Board#BOARD_SIZE}}).
+     */
+    public boolean moveAllowed(int x, int y) {
+        return indicesInBounds(x - 1, y - 1) && squareEmpty(board[y - 1][x - 1]);
+    }
+
+    /**
+     * Indices {@code x}, {@code y} in array index format ({@code 0 .. {@link Board#BOARD_SIZE} - 1}).
+     */
+    private boolean indicesInBounds(int x, int y) {
+        return x >= 0 && y >= 0 && x < BOARD_SIZE & y < BOARD_SIZE;
+    }
+
+    private boolean squareEmpty(BoardSquare boardSquare) {
+        return boardSquare == BoardSquare.EMPTY;
+    }
+
+    /**
+     * Indices {@code x}, {@code y} in array index format ({@code 0 .. {@link Board#BOARD_SIZE} - 1}).
+     */
     private boolean checkIfMoveWinning(int x, int y) {
         BoardSquare lastMove = board[y][x];
         // check horizontal
@@ -123,5 +136,23 @@ public class Board implements Serializable {
             }
         }
         return won;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Board board1 = (Board) o;
+
+        if (!Arrays.deepEquals(board, board1.board)) return false;
+        return winner == board1.winner;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.deepHashCode(board);
+        result = 31 * result + winner.hashCode();
+        return result;
     }
 }

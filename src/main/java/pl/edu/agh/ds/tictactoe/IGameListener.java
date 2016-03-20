@@ -21,6 +21,4 @@ public interface IGameListener extends Remote {
     void onPrintBoard(Board board) throws RemoteException;
 
     void onPlayerRejected(String message) throws RemoteException;
-
-    void onExitPlayer() throws RemoteException;
 }

@@ -56,19 +56,25 @@ public class Player extends UnicastRemoteObject implements IPlayer, IGameListene
     @Override
     public void onWonGame() throws RemoteException {
         System.out.println("CONGRATS!!! YOU WON!!!");
-        unexportPlayer();
+        synchronized (this) {
+            this.notify();
+        }
     }
 
     @Override
     public void onLostGame() throws RemoteException {
         System.out.println("Sorry, you lost!");
-        unexportPlayer();
+        synchronized (this) {
+            this.notify();
+        }
     }
 
     @Override
     public void onDrawGame() throws RemoteException {
         System.out.println("It's a draw!");
-        unexportPlayer();
+        synchronized (this) {
+            this.notify();
+        }
     }
 
     @Override
@@ -84,12 +90,6 @@ public class Player extends UnicastRemoteObject implements IPlayer, IGameListene
     @Override
     public void onPlayerRejected(String message) throws RemoteException {
         System.out.println(String.format("Player rejected: %s", message));
-        unexportPlayer();
-    }
-
-    @Override
-    public void onExitPlayer() throws RemoteException {
-        System.exit(0);
     }
 
     private void unexportPlayer() {

@@ -39,8 +39,8 @@ public class TicTacToeServer {
 
         try {
             Registry registry = LocateRegistry.createRegistry(port);
-            IGame gameImpl = new Game();
-            IGame game = (IGame) UnicastRemoteObject.exportObject(gameImpl, port);
+            IGameServer gameImpl = new GameServer();
+            IGameServer game = (IGameServer) UnicastRemoteObject.exportObject(gameImpl, port);
             registry.rebind(gameServiceName, game);
 
         } catch (RemoteException e) {

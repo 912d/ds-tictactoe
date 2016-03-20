@@ -1,8 +1,8 @@
 package pl.edu.agh.ds.tictactoe;
 
-import pl.edu.agh.ds.tictactoe.noteboard.PropertiesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.edu.agh.ds.tictactoe.noteboard.PropertiesLoader;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -11,19 +11,11 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-import static java.lang.Thread.sleep;
 
 public class TicTacToeClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TicTacToeClient.class);
 
     private static final String PROPERTIES_FILEPATH = "src/main/resources/server.properties";
-
-    private static final Lock lock = new ReentrantLock();
-    public static final Condition notFinished = lock.newCondition();
 
     public static void main(String[] args) {
         String propertiesFilepath;
@@ -50,24 +42,41 @@ public class TicTacToeClient {
         }
 
         try {
-            IGame game = (IGame) Naming.lookup(String.format("rmi://%s:%s/%s", rmiRegistryIP, rmiRegistryPort,
-                    gameServiceName));
+            IGameServer game = (IGameServer) Naming.lookup(String.format("rmi://%s:%s/%s",
+                    rmiRegistryIP, rmiRegistryPort, gameServiceName));
 
             Scanner scanner = new Scanner(System.in);
             System.out.print("Type your nickname: ");
+
             Player player = new Player(scanner.nextLine());
-
-            // I want to play with player
-                boolean playWithAI = false;
-                System.out.println("Play with: " + (playWithAI ? "AI" : "player"));
-
-                if (!playWithAI) {
-                    game.startGameWithPlayer(player.getNick(), player);
-                }
+            boolean registeredSuccessfully = game.registerPlayer(player.getNick(), player);
+            while (!registeredSuccessfully) {
+                System.out.println("Please try again.");
+                System.out.print("Type your nickname: ");
+                player = new Player(scanner.nextLine());
+                registeredSuccessfully = game.registerPlayer(player.getNick(), player);
+            }
 
             while (true) {
-                sleep(5);
+                System.out.println("Would you like to play with AI or another player? (ai/pl)");
+                boolean playWithAI = scanner.nextLine().equals("ai");
+                System.out.println("Starting game with: " + (playWithAI ? "AI" : "player"));
+
+                if (playWithAI) {
+                    game.startGameWithAI(player.getNick(), player);
+                } else {
+                    game.startGameWithPlayer(player.getNick());
+                }
+                synchronized (player) {
+                    player.wait();
+                }
+                System.out.println("Play again? (y/n)");
+                if (!scanner.nextLine().equals("y")) {
+                    break;
+                }
             }
+            game.unregisterPlayer(player.getNick(), player);
+            System.exit(0);
 
         } catch (RemoteException | NotBoundException | MalformedURLException e) {
             LOGGER.error("Error: ", e);
