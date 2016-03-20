@@ -15,7 +15,7 @@ public class GameServer implements IGameServer {
     private Map<String, IGameListener> players = new HashMap<>();
 
     @Override
-    public boolean registerPlayer(String nick, IGameListener listener) throws RemoteException {
+    public synchronized boolean registerPlayer(String nick, IGameListener listener) throws RemoteException {
         IGameListener remoteListener = players.get(nick);
         if (remoteListener == null) {
             addPlayer(nick, listener);
@@ -62,7 +62,6 @@ public class GameServer implements IGameServer {
         IGameListener remoteListener = players.get(nick);
         if (remoteListener != null && remoteListener.equals(listener)) {
             players.remove(nick);
-            UnicastRemoteObject.unexportObject(remoteListener, true);
         } else {
             LOGGER.info("Attempt to unregister not registered player {}", nick);
         }

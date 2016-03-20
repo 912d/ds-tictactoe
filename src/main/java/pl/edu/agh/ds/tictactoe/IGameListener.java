@@ -1,8 +1,5 @@
 package pl.edu.agh.ds.tictactoe;
 
-import javafx.util.Pair;
-
-import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

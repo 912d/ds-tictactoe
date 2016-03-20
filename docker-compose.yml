@@ -1,0 +1,41 @@
+version: '2'
+services:
+  server:
+    image: java:8
+    working_dir: /code
+    command: java -classpath /code/target/tictactoe-1.0-SNAPSHOT-jar-with-dependencies.jar -Djava.rmi.server.codebase=file:/code/target/tictactoe-1.0-SNAPSHOT-jar-with-dependencies.jar  pl.edu.agh.ds.tictactoe.TicTacToeServer
+    volumes:
+     - .:/code
+    networks:
+      siec:
+        ipv4_address: 10.1.0.44
+  client1:
+    image: java:8
+    working_dir: /code
+    command: tail -f src/main/resources/server.properties
+    volumes:
+     - .:/code
+    networks:
+      siec:
+  client2:
+    image: java:8
+    working_dir: /code
+    command: tail -f src/main/resources/server.properties
+    volumes:
+     - .:/code
+    networks:
+      siec:
+
+networks:
+  siec:
+    ipam:
+      config:
+      - subnet: 10.1.0.0/16
+
+# ./docker-compose-Linux-x86_64 up -d
+
+# docker exec -it lab2_client1_1 java -classpath /code/target/tictactoe-1.0-SNAPSHOT-jar-with-dependencies.jar -Djava.rmi.server.codebase=file:/code/target/tictactoe-1.0-SNAPSHOT-jar-with-dependencies.jar  pl.edu.agh.ds.tictactoe.TicTacToeClient
+# docker exec -it lab2_client2_1 java -classpath /code/target/tictactoe-1.0-SNAPSHOT-jar-with-dependencies.jar -Djava.rmi.server.codebase=file:/code/target/tictactoe-1.0-SNAPSHOT-jar-with-dependencies.jar  pl.edu.agh.ds.tictactoe.TicTacToeClient
+
+# ./docker-compose-Linux-x86_64 kill && ./docker-compose-Linux-x86_64 rm
+# docker rm -fv $(docker ps -a -q)

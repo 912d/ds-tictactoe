@@ -30,6 +30,30 @@ public class BoardTest {
     }
 
     @Test
+    public void testCheckDiagonalWin3() throws Exception {
+        Board board = new Board();
+        boolean won;
+        won = board.applyMove(1, 3, BoardSquare.O);
+        assertThat(won).isFalse();
+        won = board.applyMove(2, 2, BoardSquare.O);
+        assertThat(won).isFalse();
+        won = board.applyMove(3, 1, BoardSquare.O);
+        assertThat(won).isTrue();
+    }
+
+    @Test
+    public void testCheckDiagonalWin4() throws Exception {
+        Board board = new Board();
+        boolean won;
+        won = board.applyMove(1, 3, BoardSquare.O);
+        assertThat(won).isFalse();
+        won = board.applyMove(3, 1, BoardSquare.O);
+        assertThat(won).isFalse();
+        won = board.applyMove(2, 2, BoardSquare.O);
+        assertThat(won).isTrue();
+    }
+
+    @Test
     public void testCheckVerticalWin() throws Exception {
         Board board = new Board();
         boolean won = board.applyMove(1, 1, BoardSquare.O);
