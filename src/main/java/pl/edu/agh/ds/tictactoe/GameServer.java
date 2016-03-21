@@ -31,7 +31,7 @@ public class GameServer implements IGameServer {
     }
 
     @Override
-    public void startGameWithPlayer(String nick) throws RemoteException {
+    public synchronized void startGameWithPlayer(String nick) throws RemoteException {
         if (isPlayerRegistered(nick)) {
             IGameListener listener = players.get(nick);
             if (nick.equals(waitingPlayer)) {
@@ -51,14 +51,14 @@ public class GameServer implements IGameServer {
     }
 
     @Override
-    public void startGameWithAI(String nick, IGameListener listener) throws RemoteException {
+    public synchronized void startGameWithAI(String nick, IGameListener listener) throws RemoteException {
         if (isPlayerRegistered(nick)) {
             startGameWithAIInNewThread(nick, new Board());
         }
     }
 
     @Override
-    public void unregisterPlayer(String nick, IGameListener listener) throws RemoteException {
+    public synchronized void unregisterPlayer(String nick, IGameListener listener) throws RemoteException {
         IGameListener remoteListener = players.get(nick);
         if (remoteListener != null && remoteListener.equals(listener)) {
             players.remove(nick);
